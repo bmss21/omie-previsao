@@ -1,0 +1,44 @@
+{
+  "gerado": "2026-10-27T12:16:43+00:00",
+  "ultimo_dia_real": "2026-10-27",
+  "metodo": "média dos últimos 7 dias à mesma hora",
+  "erro_backtest_eur_mwh": {
+    "modelo": 38.4,
+    "media_7d": 32.5,
+    "por_horizonte": {
+      "1": {
+        "modelo": 36.8,
+        "media_7d": 30.7
+      },
+      "2": {
+        "modelo": 37.9,
+        "media_7d": 32.0
+      },
+      "3": {
+        "modelo": 38.4,
+        "media_7d": 32.5
+      },
+      "4": {
+        "modelo": 38.8,
+        "media_7d": 32.9
+      },
+      "5": {
+        "modelo": 39.0,
+        "media_7d": 33.2
+      },
+      "6": {
+        "modelo": 38.9,
+        "media_7d": 33.0
+      },
+      "7": {
+        "modelo": 38.7,
+        "media_7d": 32.8
+      },
+      "8": {
+        "modelo": 38.7,
+        "media_7d": 32.8
+      }
+    },
+    "dias": 90
+  }
+}

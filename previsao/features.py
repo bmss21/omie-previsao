@@ -96,10 +96,23 @@ def lags_ate(tab: pd.DataFrame, k: date) -> dict | None:
     }
 
 
-def linhas(alvos: pd.DataFrame, met: pd.DataFrame, tab: pd.DataFrame, k: date, fer: set[date]) -> pd.DataFrame:
+METEO_JANELA = ["vento_pot", "sol", "temp_desvio"]
+
+
+def meteo_7d(met: pd.DataFrame) -> pd.DataFrame:
+    """Meteorologia média dos 7 dias (locais) que terminam em cada dia."""
+    m = met.copy()
+    m["dia"] = m["ts"].dt.tz_convert(MADRID).dt.date
+    return m.groupby("dia")[METEO_JANELA].mean().rolling(7, min_periods=5).mean()
+
+
+def linhas(alvos: pd.DataFrame, met: pd.DataFrame, tab: pd.DataFrame, k: date, fer: set[date],
+           r7: pd.DataFrame | None = None) -> pd.DataFrame:
     """Variáveis para as horas `alvos` (coluna ts) quando o último dia conhecido é k."""
     lg = lags_ate(tab, k)
-    if lg is None:
+    if r7 is None:
+        r7 = meteo_7d(met)
+    if lg is None or k not in r7.index:
         return pd.DataFrame()
     df = alvos[["ts"]].merge(met, on="ts", how="left")
     local = df["ts"].dt.tz_convert(MADRID)
@@ -117,14 +130,25 @@ def linhas(alvos: pd.DataFrame, met: pd.DataFrame, tab: pd.DataFrame, k: date, f
     df["min_7d"] = lg["min_7d"]
     df["max_7d"] = lg["max_7d"]
     df["perfil_hora"] = df["hora"].map(lg["perfil"]).astype(float)
-    # Contexto: vento médio recente vs previsto (o nível de preço já reflete o vento passado)
+    # Tudo relativo ao nível recente, para o modelo funcionar mesmo quando os preços
+    # sobem ou descem para valores que nunca viu (ex.: verão/outono de 2026).
+    df["perf_rel"] = df["perfil_hora"] - lg["nivel_7d"]
+    df["min_rel"] = lg["min_7d"] - lg["nivel_7d"]
+    df["max_rel"] = lg["max_7d"] - lg["nivel_7d"]
+    df["d1_rel"] = lg["nivel_1d"] - lg["nivel_7d"]
+    df["amplitude"] = max(lg["max_7d"] - lg["min_7d"], 20.0)
+    # Meteorologia prevista face à da semana que formou o perfil de preços
+    for c in METEO_JANELA:
+        df[f"{c}_7d"] = float(r7.loc[k, c])
+        df[f"{c}_anom"] = df[c] - df[f"{c}_7d"]
     return df
 
 
 COLUNAS = [
     "hora", "dow", "fim_semana", "feriado", "doy_sin", "doy_cos", "horizonte",
     "vento_pot", "vento_ms", "sol", "temp", "temp_desvio", "chuva_7d", "chuva_30d",
-    "nivel_7d", "nivel_1d", "min_7d", "max_7d", "perfil_hora",
+    "perf_rel", "min_rel", "max_rel", "d1_rel", "amplitude",
+    "vento_pot_7d", "vento_pot_anom", "sol_7d", "sol_anom", "temp_desvio_anom",
 ]
 
 
@@ -135,13 +159,14 @@ def conjunto_treino(precos: pd.DataFrame, met: pd.DataFrame, dias_alvo) -> pd.Da
     p = precos.copy()
     p["dia"] = p["ts"].dt.tz_convert(MADRID).dt.date
     por_dia = dict(tuple(p.groupby("dia")))
+    r7 = meteo_7d(met)
     partes = []
     for t in dias_alvo:
         if t not in por_dia:
             continue
         alvo = por_dia[t]
         for h in HORIZONTES:
-            df = linhas(alvo, met, tab, t - timedelta(days=h), fer)
+            df = linhas(alvo, met, tab, t - timedelta(days=h), fer, r7)
             if df.empty:
                 continue
             df["preco"] = alvo["preco"].values

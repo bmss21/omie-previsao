@@ -1,5 +1,5 @@
 {
-  "gerado": "2026-11-07T17:43:56+00:00",
+  "gerado": "2026-11-07T18:44:22+00:00",
   "ultimo_dia_real": "2026-11-08",
   "metodo": "gradient boosting (vento, sol, temperatura, chuva, histórico)",
   "erro_backtest_eur_mwh": {
@@ -19,7 +19,7 @@
         "media_7d": 36.6
       },
       "4": {
-        "modelo": 30.0,
+        "modelo": 29.9,
         "media_7d": 37.1
       },
       "5": {

@@ -1,9 +1,9 @@
 {
-  "gerado": "2026-11-23T23:48:30+00:00",
+  "gerado": "2026-11-24T01:39:23+00:00",
   "ultimo_dia_real": "2026-11-24",
   "metodo": "gradient boosting (vento, sol, temperatura, chuva, histórico)",
   "erro_backtest_eur_mwh": {
-    "modelo": 37.6,
+    "modelo": 37.5,
     "media_7d": 46.4,
     "por_horizonte": {
       "1": {
@@ -19,19 +19,19 @@
         "media_7d": 45.1
       },
       "4": {
-        "modelo": 37.6,
+        "modelo": 37.5,
         "media_7d": 46.3
       },
       "5": {
-        "modelo": 38.5,
+        "modelo": 38.4,
         "media_7d": 47.6
       },
       "6": {
-        "modelo": 39.1,
+        "modelo": 39.0,
         "media_7d": 48.3
       },
       "7": {
-        "modelo": 39.7,
+        "modelo": 39.6,
         "media_7d": 49.0
       },
       "8": {
